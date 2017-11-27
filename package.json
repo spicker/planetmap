@@ -1,0 +1,25 @@
+{
+  "name": "planetmap",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --open",
+    "build": "webpack"
+  },
+  "author": "Christoph Spickermann",
+  "license": "ISC",
+  "dependencies": {},
+  "private": true,
+  "devDependencies": {
+    "css-loader": "^0.28.7",
+    "html-webpack-plugin": "^2.30.1",
+    "stats-js": "^1.0.0-alpha1",
+    "style-loader": "^0.19.0",
+    "three": "^0.88.0",
+    "three-orbit-controls": "^82.1.0",
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.4"
+  }
+}
