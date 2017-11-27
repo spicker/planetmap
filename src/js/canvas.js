@@ -54,44 +54,41 @@ export default class canvas {
         this.stats.update();
 
         // this.updateOutline(this.highlighted);
-        // this.raycast();
+        this.raycast();
     }
 
 
     //DRAW
     drawPlanet(planet) {
         let geometry = new THREE.SphereBufferGeometry(planet.radius, 50, 50);
-        let material = new THREE.MeshLambertMaterial({ dithering: true });
-        let mesh = new THREE.Mesh(geometry, material);
+        let material = new THREE.MeshLambertMaterial(planet.materialProperties);
+        planet.mesh = new THREE.Mesh(geometry, material);
 
-        mesh.position.copy(planet.position);
+        planet.mesh.position.copy(planet.position);
 
-        this.scene.add(mesh);
-        this.planets.push(planet);
-    }
-
-    drawOutline(planet) {
-        this.highlighted = planet;
-
-        let material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.BackSide });
-        planet.outline = new THREE.Mesh(planet.mesh.geometry, material);
+        let outlineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.BackSide });
+        planet.outline = new THREE.Mesh(planet.mesh.geometry, outlineMaterial);
 
         planet.outline.position.copy(planet.position);
+        planet.outline.visible = false;
 
-        this.scene.add(planet.outline);
+        let group = new THREE.Group();
+        group.add(planet.mesh);
+        group.add(planet.outline);
+
+        this.scene.add(group);
+        this.planets.push(planet);
+
     }
 
     updateOutline(planet) {
-        if (planet != null) {
-            if (planet.outline === null) {
-                drawOutline(planet);
-            } else {
-                let distanceToCamera = planet.position.distanceTo(camera.position);
-                let lineThickness = distanceToCamera / (planet.geometry.parameters.radius * 500);
-                outline.scale.copy(planet.scale);
-                outline.scale.addScalar(lineThickness);
-            }
-        }
+
+        let outline = planet.parent.children[1];
+        let distanceToCamera = planet.position.distanceTo(this.camera.position);
+        let lineThickness = distanceToCamera / (planet.geometry.parameters.radius * 200);
+        outline.scale.copy(planet.scale);
+        outline.scale.addScalar(lineThickness);
+        outline.visible = true;
     }
 
 
@@ -101,20 +98,37 @@ export default class canvas {
         this.scene.add(light);
     }
 
+    drawPointLight(planet) {
+        let light = new THREE.PointLight(0xffffff, 1, 0, 0);
+        light.position.copy(planet.position);
+        this.scene.add(light);
+    }
 
-    // raycast() {
-    //     this.raycaster.setFromCamera(this.mouse, this.camera);
 
-    //     // calculate objects intersecting the picking ray
-    //     let intersects = this.raycaster.intersectObjects(this.planets.forEach(p => p.mesh));
+    raycast() {
+        this.raycaster.setFromCamera(this.mouse, this.camera);
 
-    //     intersects[0].object.visible = true;
-    //     this.highlighted.mesh = intersects[0].object;
-    //     for (let i = 1; i++; i < intersects.length) {
-    //         intersects[i].object.visible = false;
-    //     }
-    //     // intersects[0].object
+        // calculate objects intersecting the picking ray
+        let intersects = this.raycaster.intersectObjects(this.planets.map(p => p.mesh));
 
-    //     this.renderer.render(scene, camera);
-    // }
+        if (intersects.length !== 0) {
+            if (this.highlighted !== null) this.highlighted.parent.children[1].visible = false;
+            this.updateOutline(intersects[0].object);
+            this.highlighted = intersects[0].object;
+        } else {
+            if (this.highlighted !== null) this.highlighted.parent.children[1].visible = false;
+            this.highlighted = null;
+        }
+
+
+
+        // intersects[0].object.visible = true;
+        // this.highlighted.mesh = intersects[0].object;
+        // for (let i = 1; i++; i < intersects.length) {
+        //     intersects[i].object.visible = false;
+        // }
+        // intersects[0].object
+
+        this.renderer.render(this.scene, this.camera);
+    }
 }

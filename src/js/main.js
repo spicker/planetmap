@@ -1,19 +1,17 @@
 import Canvas from './canvas'
 import Planet from './planet'
-import {Vector3} from 'three'
 
 
 let canvas = new Canvas();
-let earth = new Planet();
-let sun = new Planet(1000,new Vector3(10000,0,0));
+let earth = new Planet(100, [0, 0, 0], { color: 0x0077ff });
+let sun = new Planet(1000, [10000, 0, 0], { emissive: 0xffffaa, dithering: true });
 
 canvas.camera.position.z = 500;
 
 
 canvas.drawPlanet(earth);
 canvas.drawPlanet(sun);
-canvas.drawAmbientLight();
-
+canvas.drawPointLight(sun);
 
 (function loop() {
     window.requestAnimationFrame(loop);
