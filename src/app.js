@@ -1,2 +1,2 @@
-import './js/planet.js';
+import './js/main.js';
 import './css/base.css';

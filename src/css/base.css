@@ -2,10 +2,16 @@
 body {
     margin: 0;
     overflow: hidden;
-    color: 0x555555;
+    color: #ffffaa;
 }
 
 canvas {
     width: 100%;
     height: 100%
+}
+
+#stats {
+    position: absolute;
+    left: 0px;
+    top: 0px;
 }
