@@ -13,6 +13,7 @@ canvas.drawPlanet(earth);
 canvas.drawPlanet(sun);
 canvas.drawPointLight(sun);
 
+
 (function loop() {
     window.requestAnimationFrame(loop);
     canvas.animate();
