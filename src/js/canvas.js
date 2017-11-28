@@ -40,7 +40,7 @@ export default class canvas {
     initControls() {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         // this.controls.autoRotate = true;
-        this.controls.enableDamping = true;
+        // this.controls.enableDamping = true;
     }
 
     initStats() {
@@ -80,6 +80,11 @@ export default class canvas {
         this.scene.add(light);
     }
 
+    drawCameraHelper() {
+        let helper = new THREE.CameraHelper(this.camera);
+        this.scene.add(helper);
+    }
+
 
     raycast() {
         this.raycaster.setFromCamera(this.mouse, this.camera);
@@ -108,12 +113,13 @@ export default class canvas {
     }
 
     focusCamera(planet) {
-        let distance = this.camera.position.distanceTo(planet.position);
-        // distance = this.camera.position.distanceTo(this.selected);
-        // this.camera.position.copy(this.selected.position);
-        // this.camera.position.z = this.camera.position.z + 500;
-        console.log(distance);
-        console.log(this.camera);
+        let pos = planet.position;
+        let cam = this.camera;
+        let oldTarget = this.controls.target;
+        let transl = new THREE.Vector3().copy(pos).sub(oldTarget);
+
+        cam.position.add(transl);
+        this.controls.target.copy(pos);
     }
 
 }

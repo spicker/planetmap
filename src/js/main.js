@@ -13,6 +13,7 @@ canvas.drawPlanet(earth);
 canvas.drawPlanet(sun);
 canvas.drawPointLight(sun);
 // canvas.drawAmbientLight();
+// canvas.drawCameraHelper();
 
 
 let testPlanets = Array.apply(null, new Array(20))
