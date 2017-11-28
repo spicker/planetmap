@@ -15,6 +15,7 @@ export default class canvas {
         this.controls = undefined;
         this.planets = [];
         this.highlighted = null;
+        this.selected = null;
 
         this.init();
 
@@ -55,8 +56,6 @@ export default class canvas {
         for (var p of this.planets) {
             p.update(this.camera.position);
         }
-
-        this.raycast();
     }
 
 
@@ -85,20 +84,36 @@ export default class canvas {
     raycast() {
         this.raycaster.setFromCamera(this.mouse, this.camera);
 
-        // calculate objects intersecting the picking ray
         let intersects = this.raycaster.intersectObjects(this.planets.map(p => p.mesh));
 
-        // highlight object under mouse. TODO: select
+        return intersects;
+    }
+
+    updateHighlight(intersects, select) {
         if (intersects.length !== 0) {
-            let selectedPlanet = this.planets.find(p => p.mesh.uuid === intersects[0].object.uuid);
-            selectedPlanet.highlighted = true;
-            if (this.highlighted !== null && this.highlighted !== selectedPlanet) this.highlighted.highlighted = false;
-            this.highlighted = selectedPlanet;
+            let planet = this.planets.find(p => p.mesh.uuid === intersects[0].object.uuid);
+            planet.highlighted = true;
+            if (select) {
+                if (this.selected !== null && planet !== this.selected) this.selected.selected = false;
+                planet.selected = true;
+                this.selected = planet;
+                this.focusCamera(planet);
+            }
+            if (this.highlighted !== null && this.highlighted !== planet) this.highlighted.highlighted = false;
+            this.highlighted = planet;
         } else {
             if (this.highlighted !== null) this.highlighted.highlighted = false;
             this.highlighted = null;
         }
-
-        this.renderer.render(this.scene, this.camera);
     }
+
+    focusCamera(planet) {
+        let distance = this.camera.position.distanceTo(planet.position);
+        // distance = this.camera.position.distanceTo(this.selected);
+        // this.camera.position.copy(this.selected.position);
+        // this.camera.position.z = this.camera.position.z + 500;
+        console.log(distance);
+        console.log(this.camera);
+    }
+
 }

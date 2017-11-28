@@ -12,21 +12,25 @@ export default class Planet {
         this.radius = radius;
         this.orbit = orbit;
         this.position = new THREE.Vector3().fromArray(position);
+
         this.parentPlanet = parentPlanet;
         this.mesh = undefined;
         this.outline = null;
         this.materialProperties = materialProperties;
         this.highlighted = false;
+        this.selected = false;
     }
 
     update(cameraPos) {
 
-        let distanceToCamera = this.position.distanceTo(cameraPos);
+        let distanceToCamera = this.mesh.position.distanceTo(cameraPos);
         let lineThickness = distanceToCamera / (this.mesh.geometry.parameters.radius * 200);
         this.outline.scale.copy(this.mesh.scale);
         this.outline.scale.addScalar(lineThickness);
 
-        this.outline.visible = this.highlighted;
+        this.outline.visible = this.highlighted || this.selected;
+        this.selected ? this.outline.material.color = new THREE.Color(0x44ff44) : this.outline.material.color =new THREE.Color(0xffffff);
+        // this.outline.material.needsUpdate = true;
     }
 
     draw() {

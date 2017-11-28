@@ -3,7 +3,7 @@ import Planet from './planet'
 
 
 let canvas = new Canvas();
-let earth = new Planet(100, [0, 0, 0], { color: 0x0077ff });
+let earth = new Planet(100.5, [0, 0, 0], { color: 0x0077ff });
 let sun = new Planet(1000, [10000, 0, 0], { emissive: 0xffffaa, dithering: true });
 
 canvas.camera.position.z = 500;
@@ -12,6 +12,12 @@ canvas.camera.position.z = 500;
 canvas.drawPlanet(earth);
 canvas.drawPlanet(sun);
 canvas.drawPointLight(sun);
+// canvas.drawAmbientLight();
+
+
+let testPlanets = Array.apply(null, new Array(20))
+    .map(() => new Planet(Math.random() * 1000 + 10, [Math.random() * 100000 - 50000, Math.random() * 100000 - 50000, Math.random() * 100000 - 50000]))
+testPlanets.map(p => canvas.drawPlanet(p));
 
 
 (function loop() {
@@ -33,6 +39,14 @@ function onMouseMove(event) {
     // (-1 to +1) for both components
     canvas.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     canvas.mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+    canvas.updateHighlight(canvas.raycast(), false);
 }
+
+function onDocumentMouseDown(event) {
+    canvas.updateHighlight(canvas.raycast(), true);
+}
+
+window.addEventListener('mousedown', onDocumentMouseDown, false);
 window.addEventListener('resize', onWindowResize, false);
 window.addEventListener('mousemove', onMouseMove, false);
