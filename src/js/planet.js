@@ -24,24 +24,22 @@ export default class Planet {
     }
 
     update(camera) {
+        const beta = 1 * Math.PI / 180;
+        const d = this.mesh.position.distanceTo(camera.position);
+        const r = this.radius;
+        const alpha = Math.acos(r / d);
+        const geg = Math.sin(alpha) * d;
+        const o = Math.tan(beta) * geg;
+        const gamma = Math.PI / 2 - alpha;
+        const s = ((o + r) / Math.cos(gamma)) - r;
+        const lineOffset = s / r;
 
         if (this.highlighted || this.selected) {
-            const beta = 1 * Math.PI / 180;
-            const d = this.mesh.position.distanceTo(camera.position);
-            const r = this.radius;
-            const alpha = Math.acos(r / d);
-            const geg = Math.sin(alpha) * d;
-            const o = Math.tan(beta) * geg;
-            const gamma = Math.PI / 2 - alpha;
-            const s = ((o + r) / Math.cos(gamma)) - r;
-            const lineOffset = s / r;
-
             this.outline.scale.copy(this.mesh.scale);
             this.outline.scale.addScalar(lineOffset);
 
             this.outline.lookAt(camera.position);
         }
-
         this.outline.visible = this.highlighted || this.selected;
         // this.selected ? this.outline.material.color = new THREE.Color(0x44ff44) : this.outline.material.color = new THREE.Color(0xffffff);
     }

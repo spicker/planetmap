@@ -114,12 +114,13 @@ export default class canvas {
     }
 
     focusCamera(planet) {
-        let pos = planet.position;
-        let cam = this.camera;
-        let oldTarget = this.controls.target;
-        let transl = new THREE.Vector3().copy(pos).sub(oldTarget);
+        const pos = planet.position;
+        const cam = this.camera;
+        const oldTarget = this.controls.target;
+        const transl = new THREE.Vector3().copy(pos).sub(oldTarget);
 
         cam.position.add(transl);
+        if (cam.position.distanceTo(pos) <= planet.radius) cam.position.z -= planet.radius * 3;
         this.controls.target.copy(pos);
     }
 
