@@ -3,10 +3,12 @@ import Planet from './planet'
 
 
 let canvas = new Canvas();
-let earth = new Planet(100.5, [0, 0, 0], { color: 0x0077ff });
-let sun = new Planet(1000, [10000, 0, 0], { emissive: 0xffffaa, dithering: true });
+let earth = new Planet(6300, 150000000, 90, 0, { color: 0x0077ff });
+let sun = new Planet(695700, 0, 0, 0, { emissive: 0xffffaa, dithering: true });
 
-canvas.camera.position.z = 500;
+canvas.camera.position.copy(earth.position);
+canvas.camera.position.z -= (earth.radius * 2);
+canvas.controls.target.copy(earth.position);
 
 
 canvas.drawPlanet(earth);
@@ -17,7 +19,7 @@ canvas.drawPointLight(sun);
 
 
 let testPlanets = Array.apply(null, new Array(20))
-    .map(() => new Planet(Math.random() * 1000 + 10, [Math.random() * 100000 - 50000, Math.random() * 100000 - 50000, Math.random() * 100000 - 50000]))
+    .map(() => new Planet(Math.random() * 1000 + 10, Math.random() * 100000 + 1000, Math.random() * 180, Math.random() * 360))
 testPlanets.map(p => canvas.drawPlanet(p));
 
 

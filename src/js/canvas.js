@@ -7,7 +7,8 @@ const Stats = require('stats-js');
 
 export default class canvas {
     constructor() {
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000000);
+        this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100000000000);
+        // this.camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 0.1, 100000000000 );
         this.scene = new THREE.Scene();
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
@@ -18,7 +19,6 @@ export default class canvas {
         this.selected = null;
 
         this.init();
-
     }
 
     // INIT
@@ -50,12 +50,13 @@ export default class canvas {
     }
 
     animate() {
-        this.renderer.render(this.scene, this.camera);
         this.stats.update();
 
         for (var p of this.planets) {
-            p.update(this.camera.position);
+            p.update(this.camera);
         }
+        this.renderer.render(this.scene, this.camera);
+
     }
 
 
