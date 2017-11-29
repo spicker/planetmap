@@ -49,12 +49,13 @@ export default class Planet {
 
     updateOutline(camera) {
         if (this.highlighted || this.selected) {
+            const offset = 0.5;
+            const beta = offset * Math.PI / 180;
             const d = this.sphere.position.distanceTo(camera.position);
             const r = this.radius;
             let lineOffset = 0;
 
             if (d / r < this.diskDistance) {
-                const beta = 0.5 * Math.PI / 180;
                 const alpha = Math.acos(r / d);
                 const geg = Math.sin(alpha) * d;
                 const o = Math.tan(beta) * geg;
@@ -63,7 +64,11 @@ export default class Planet {
                 lineOffset = s / r + 1;
 
             } else {
-                lineOffset = d / r / (this.diskDistance * 0.55);
+                const ddisk = this.diskDistance * r;
+                const alpha = Math.atan(r / ddisk);
+                const gamma = beta + alpha;
+                const s = (Math.tan(gamma) * ddisk) - r;
+                lineOffset = (s / r + 1) * this.disk.scale.x;
             }
             this.outline.scale.setScalar(lineOffset);
             this.outline.lookAt(camera.position);
