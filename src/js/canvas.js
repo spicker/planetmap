@@ -92,18 +92,27 @@ export default class canvas {
         this.scene.add(helper);
     }
 
+    drawEcliptic() {
+        var plane = new THREE.Plane(new THREE.Vector3(0, 1, 0));
+        var helper = new THREE.PlaneHelper(plane, 1000000000000, 0xffffff);
+        this.scene.add(helper);
+    }
+
 
     raycast() {
         this.raycaster.setFromCamera(this.mouse, this.camera);
 
-        let intersects = this.raycaster.intersectObjects(this.planets.map(p => p.mesh));
+        let intersects = this.raycaster.intersectObjects(this.planets
+            .map(p => [p.sphere, p.disk])
+            .reduce((a, b) => a.concat(b), []));
 
         return intersects;
     }
 
     updateHighlight(intersects, select) {
         if (intersects.length !== 0) {
-            let planet = this.planets.find(p => p.mesh.uuid === intersects[0].object.uuid);
+            let planet = this.planets.find(p =>
+                p.sphere.uuid === intersects[0].object.uuid || p.disk.uuid === intersects[0].object.uuid);
             planet.highlighted = true;
             if (select) {
                 if (this.selected !== null && planet !== this.selected) this.selected.selected = false;
