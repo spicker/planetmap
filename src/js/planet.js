@@ -19,6 +19,7 @@ export default class Planet {
         this.mesh = undefined;
         this.outline = null;
         this.materialProperties = materialProperties;
+        this.materialProperties.dithering = true;
         this.highlighted = false;
         this.selected = false;
     }
@@ -45,7 +46,7 @@ export default class Planet {
     }
 
     draw() {
-        let geometry = new THREE.SphereBufferGeometry(this.radius, 50, 50);
+        let geometry = new THREE.SphereBufferGeometry(this.radius, 100, 100);
         let material = new THREE.MeshLambertMaterial(this.materialProperties);
         this.mesh = new THREE.Mesh(geometry, material);
 
@@ -72,7 +73,7 @@ export default class Planet {
             0                 // aRotation
         );
 
-        let points = curve.getPoints(50);
+        let points = curve.getPoints(100);
         let geometry = new THREE.BufferGeometry().setFromPoints(points);
 
         let material = new THREE.LineBasicMaterial({ color: 0xffffff });
@@ -85,6 +86,10 @@ export default class Planet {
     drawOutline() {
         let outlineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.BackSide });
         this.outline = new THREE.Mesh(this.mesh.geometry, outlineMaterial);
+    }
+
+    drawCircle(){
+
     }
 }
 

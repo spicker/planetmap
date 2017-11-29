@@ -68,9 +68,15 @@ export default class canvas {
         this.planets.push(planet);
     }
 
+    drawPlanets(planets) {
+        for (let p of planets) {
+            this.drawPlanet(p);
+        }
+    }
+
 
     drawAmbientLight() {
-        let light = new THREE.AmbientLight(0xffffff, 1);
+        let light = new THREE.AmbientLight(0xffffff, 0.5);
 
         this.scene.add(light);
     }
