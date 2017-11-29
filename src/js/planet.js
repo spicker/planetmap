@@ -12,10 +12,8 @@ export default class Planet {
         , orbit = null) {
 
         this.radius = radius;
-        this.orbit = orbit;
-        this.spherical = new THREE.Spherical(posRadius, posPhi, posTheta);
-        this.position = new THREE.Vector3().setFromSpherical(this.spherical);
         this.parentPlanet = parentPlanet;
+        this.orbit = orbit;
         this.sphere = undefined;
         this.outline = null;
         this.disk = null;
@@ -24,6 +22,23 @@ export default class Planet {
         this.highlighted = false;
         this.selected = false;
         this.diskDistance = 100;
+
+        this.initSpherical(posRadius, posPhi, posTheta);
+    }
+
+    initSpherical(posRadius, posPhi, posTheta) {
+        if (this.parentPlanet !== null) {
+            this.relativeSpherical = new THREE.Spherical(posRadius, posPhi, posTheta);
+            this.spherical = new THREE.Spherical()
+                .setFromVector3(new THREE.Vector3()
+                    .setFromSpherical(this.parentPlanet.spherical)
+                    .add(new THREE.Vector3()
+                        .setFromSpherical(this.relativeSpherical)));
+        } else {
+            this.spherical = new THREE.Spherical(posRadius, posPhi, posTheta);
+            this.relativeSpherical = this.spherical;
+        }
+        this.position = new THREE.Vector3().setFromSpherical(this.spherical);
     }
 
     update(camera) {
@@ -33,19 +48,26 @@ export default class Planet {
     }
 
     updateOutline(camera) {
-        const beta = 1 * Math.PI / 180;
-        const d = this.sphere.position.distanceTo(camera.position);
-        const r = this.radius;
-        const alpha = Math.acos(r / d);
-        const geg = Math.sin(alpha) * d;
-        const o = Math.tan(beta) * geg;
-        const gamma = Math.PI / 2 - alpha;
-        const s = ((o + r) / Math.cos(gamma)) - r;
-        const lineOffset = s / r + 1;
-
         if (this.highlighted || this.selected) {
+            const d = this.sphere.position.distanceTo(camera.position);
+            const r = this.radius;
+            let lineOffset = 0;
+
+            if (d / r < this.diskDistance) {
+                const beta = 0.5 * Math.PI / 180;
+                const alpha = Math.acos(r / d);
+                const geg = Math.sin(alpha) * d;
+                const o = Math.tan(beta) * geg;
+                const gamma = Math.PI / 2 - alpha;
+                const s = ((o + r) / Math.cos(gamma)) - r;
+                lineOffset = s / r + 1;
+
+            } else {
+                lineOffset = d / r / (this.diskDistance * 0.55);
+            }
             this.outline.scale.setScalar(lineOffset);
             this.outline.lookAt(camera.position);
+
         }
         this.outline.visible = this.highlighted || this.selected;
         // this.selected ? this.outline.material.color = new THREE.Color(0x44ff44) : this.outline.material.color = new THREE.Color(0xffffff);

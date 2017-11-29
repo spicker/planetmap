@@ -94,7 +94,8 @@ export default class canvas {
 
     drawEcliptic() {
         var plane = new THREE.Plane(new THREE.Vector3(0, 1, 0));
-        var helper = new THREE.PlaneHelper(plane, 1000000000000, 0xffffff);
+        var helper = new THREE.PlaneHelper(plane, 1000000000000, 0x222222);
+        helper.renderOrder = 0;
         this.scene.add(helper);
     }
 
