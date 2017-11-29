@@ -28,14 +28,14 @@ export default class Planet {
 
     initSpherical(posRadius, posPhi, posTheta) {
         if (this.parentPlanet !== null) {
-            this.relativeSpherical = new THREE.Spherical(posRadius, posPhi, posTheta);
+            this.relativeSpherical = new THREE.Spherical(posRadius, posPhi + Math.PI / 2, posTheta);
             this.spherical = new THREE.Spherical()
                 .setFromVector3(new THREE.Vector3()
                     .setFromSpherical(this.parentPlanet.spherical)
                     .add(new THREE.Vector3()
                         .setFromSpherical(this.relativeSpherical)));
         } else {
-            this.spherical = new THREE.Spherical(posRadius, posPhi, posTheta);
+            this.spherical = new THREE.Spherical(posRadius, posPhi + Math.PI / 2, posTheta);
             this.relativeSpherical = this.spherical;
         }
         this.position = new THREE.Vector3().setFromSpherical(this.spherical);

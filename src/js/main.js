@@ -4,13 +4,13 @@ import Planet from './planet'
 
 let rr = () => { return Math.random() * Math.PI * 2; };
 let canvas = new Canvas();
-let earth = new Planet(6300, 150000000, Math.PI / 2, rr(), { color: 0x0077ff });
+let earth = new Planet(6300, 150000000, 0, rr(), { color: 0x0077ff });
 let sun = new Planet(695700, 0, 0, 0, { color: 0xffffaa, emissive: 0xffffaa });
-let moon = new Planet(1737, 385000, Math.PI / 2, rr(), { color: 0x888888 }, earth);
-let venus = new Planet(6051, 108280000, Math.PI / 2, rr(), { color: 0xbbbb88 });
-let mars = new Planet(3389, 227939200, Math.PI / 2, rr(), { color: 0xff4411 });
-let saturn = new Planet(58232, 1433530000, Math.PI / 2, rr(), { color: 0xbb8822 });
-let jupiter = new Planet(69911, 778570000, Math.PI / 2, rr(), { color: 0xccaa88 });
+let moon = new Planet(1737, 385000, 0, rr(), { color: 0x888888 }, earth);
+let venus = new Planet(6051, 108280000, 0, rr(), { color: 0xbbbb88 });
+let mars = new Planet(3389, 227939200, 0, rr(), { color: 0xff4411 });
+let saturn = new Planet(58232, 1433530000, 0, rr(), { color: 0xbb8822 });
+let jupiter = new Planet(69911, 778570000, 0, rr(), { color: 0xccaa88 });
 
 canvas.camera.position.copy(earth.position);
 canvas.camera.position.z -= (earth.radius * 3);
