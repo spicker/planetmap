@@ -1,6 +1,7 @@
 
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 
 module.exports = {
@@ -20,6 +21,15 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             title: 'bla'
+        }),
+        new UglifyJsPlugin({
+            test: /\.js($|\?)/i,
+            exclude: /(node_modules|bower_components)/,
+            cache: true,
+            parallel: true,
+            uglifyOptions: {
+                compress: true
+            }
         })
     ],
     module: {

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import orbit from './orbit';
 
 
 export default class Planet {
@@ -27,6 +28,8 @@ export default class Planet {
     }
 
     initSpherical(posRadius, posPhi, posTheta) {
+        THREE.Math.clamp(posPhi, -90, 90);
+        THREE.Math.clamp(posTheta, 0, 360);
         if (this.parentPlanet !== null) {
             this.relativeSpherical = new THREE.Spherical(posRadius, posPhi + Math.PI / 2, posTheta);
             this.spherical = new THREE.Spherical()
@@ -50,7 +53,7 @@ export default class Planet {
     updateOutline(camera) {
         if (this.highlighted || this.selected) {
             const offset = 0.5;
-            const beta = offset * Math.PI / 180;
+            const beta = THREE.Math.degToRad(offset);
             const d = this.sphere.position.distanceTo(camera.position);
             const r = this.radius;
             let lineOffset = 0;
