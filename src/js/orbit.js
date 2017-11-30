@@ -1,5 +1,3 @@
-
-
 export default class Orbit {
     constructor(center, semiMajor, semiMinor) {
         this.center = center;

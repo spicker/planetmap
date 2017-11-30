@@ -1,16 +1,15 @@
 import * as THREE from 'three';
 import orbit from './orbit';
+import png_disk from '../assets/disk.png';
+// import {Mesh} from 'three';
 
 
 export default class Planet {
     constructor(
-        radius = 100
-        , posRadius = 0
-        , posPhi = 0
-        , posTheta = 0
-        , materialProperties = { color: 0xffffff, dithering: true }
-        , parentPlanet = null
-        , orbit = null) {
+        radius = 100, posRadius = 0, posPhi = 0, posTheta = 0, materialProperties = {
+            color: 0xffffff,
+            dithering: true
+        }, parentPlanet = null, orbit = null) {
 
         this.radius = radius;
         this.parentPlanet = parentPlanet;
@@ -23,6 +22,7 @@ export default class Planet {
         this.highlighted = false;
         this.selected = false;
         this.diskDistance = 100;
+        this.color = this.materialProperties.color;
 
         this.initSpherical(posRadius, posPhi, posTheta);
     }
@@ -46,7 +46,7 @@ export default class Planet {
 
     update(camera) {
         this.updateSphere(camera);
-        this.updateDisk(camera);
+        this.updateDisk2(camera);
         this.updateOutline(camera);
     }
 
@@ -71,7 +71,8 @@ export default class Planet {
                 const alpha = Math.atan(r / ddisk);
                 const gamma = beta + alpha;
                 const s = (Math.tan(gamma) * ddisk) - r;
-                lineOffset = (s / r + 1) * this.disk.scale.x;
+                const dscale = this.disk.scale.x / (r * 2)
+                lineOffset = (s / r + 1) * dscale;
             }
             this.outline.scale.setScalar(lineOffset);
             this.outline.lookAt(camera.position);
@@ -82,15 +83,29 @@ export default class Planet {
 
     }
     updateDisk(camera) {
+        if (this.disk.visible) {
+
+            const distance = this.sphere.position.distanceTo(camera.position);
+            const dr = distance / this.radius;
+
+            this.disk.visible = dr >= this.diskDistance;
+            this.disk.scale.setScalar(dr / this.diskDistance);
+
+
+            this.disk.lookAt(camera.position);
+        }
+    }
+    updateDisk2(camera) {
         const distance = this.sphere.position.distanceTo(camera.position);
         const dr = distance / this.radius;
 
         this.disk.visible = dr >= this.diskDistance;
-        if (this.disk.visible) {
-            this.disk.scale.setScalar(dr / this.diskDistance);
-        }
 
-        this.disk.lookAt(camera.position);
+        if (this.disk.visible) {
+            this.disk.scale.setScalar(this.radius * 2 * (dr / this.diskDistance));
+
+            // this.disk.lookAt(camera.position);
+        }
     }
 
     updateSphere(camera) {
@@ -101,13 +116,15 @@ export default class Planet {
 
     draw() {
         this.sphere = this.drawSphere();
-        this.sphere.position.copy(this.position);
 
         this.outline = this.drawOutlineCircle();
-        this.outline.position.copy(this.position);
 
-        this.disk = this.drawDisk();
-        this.disk.position.copy(this.position);
+        // let diskMaterial = new THREE.MeshBasicMaterial({
+        //     color: this.color
+        // });
+        // this.disk = new THREE.Mesh(this.sphere.geometry, diskMaterial);
+
+        this.disk = this.drawDisk2();
 
         let group = new THREE.Group();
         group.add(this.sphere);
@@ -118,44 +135,70 @@ export default class Planet {
     }
 
     drawSphere() {
-        let geometry = new THREE.SphereBufferGeometry(this.radius, 100, 100);
+        let geometry = new THREE.SphereBufferGeometry(this.radius, 50, 50);
         let material = new THREE.MeshLambertMaterial(this.materialProperties);
         let sphere = new THREE.Mesh(geometry, material);
+
+        sphere.position.copy(this.position);
 
         return sphere;
     }
 
     drawDisk() {
-        let geometry = new THREE.CircleBufferGeometry(this.radius, 50);
-        let material = new THREE.MeshBasicMaterial({ color: this.materialProperties.color });
+        let geometry = new THREE.CircleBufferGeometry(this.radius, 10);
+        let material = new THREE.MeshBasicMaterial({
+            color: this.color
+        });
         let disk = new THREE.Mesh(geometry, material);
+
+        disk.position.copy(this.position);
 
         return disk;
     }
 
+    drawDisk2() {
+        let spriteMap = new THREE.TextureLoader().load(png_disk);
+        let spriteMaterial = new THREE.SpriteMaterial({
+            map: spriteMap,
+            color: this.color
+        });
+        let sprite = new THREE.Sprite(spriteMaterial);
+        sprite.scale.setScalar(this.radius * 2);
+        sprite.position.copy(this.position);
+        // console.log(sprite.position);
+        // console.log(sprite.scale);
+
+        return sprite;
+    }
+
     drawOutlineCircle() {
         let curve = new THREE.EllipseCurve(
-            0, 0,            // ax, aY
-            this.radius, this.radius,           // xRadius, yRadius
-            0, 2 * Math.PI,  // aStartAngle, aEndAngle
-            false,            // aClockwise
-            0                 // aRotation
+            0, 0, // ax, aY
+            this.radius, this.radius, // xRadius, yRadius
+            0, 2 * Math.PI, // aStartAngle, aEndAngle
+            false, // aClockwise
+            0 // aRotation
         );
 
-        let points = curve.getPoints(100);
+        let points = curve.getPoints(50);
         let geometry = new THREE.BufferGeometry().setFromPoints(points);
-        let material = new THREE.LineBasicMaterial({ color: 0xffffff });
+        let material = new THREE.LineBasicMaterial({
+            color: 0xffffff
+        });
         let circle = new THREE.Line(geometry, material);
+
+        circle.position.copy(this.position);
 
         return circle;
     }
 
     drawOutline() {
-        let outlineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.BackSide });
+        let outlineMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            side: THREE.BackSide
+        });
         this.outline = new THREE.Mesh(this.sphere.geometry, outlineMaterial);
     }
 
 
 }
-
-

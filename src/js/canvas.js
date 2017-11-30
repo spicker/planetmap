@@ -15,6 +15,7 @@ export default class canvas {
         this.renderer = undefined;
         this.controls = undefined;
         this.planets = [];
+        this.planetMeshes = [];
         this.highlighted = null;
         this.selected = null;
 
@@ -25,15 +26,20 @@ export default class canvas {
     init() {
         this.initRenderer();
         this.initControls();
-        this.initStats();
+        this.initStats(0);
     }
 
     initRenderer() {
         this.container = document.createElement('div');
         document.body.appendChild(this.container);
 
-        this.renderer = new THREE.WebGLRenderer({ antialias: true /*, precision:"highp"*/ });
+        this.renderer = new THREE.WebGLRenderer({
+            antialias: false,
+            // precision:"highp",
+            logarithmicDepthBuffer: true
+        });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.sortObjects = false;
         this.container.appendChild(this.renderer.domElement);
     }
 
@@ -43,9 +49,9 @@ export default class canvas {
         // this.controls.enableDamping = true;
     }
 
-    initStats() {
+    initStats(mode) {
         this.stats = new Stats();
-        // this.stats.setMode(1);
+        this.stats.setMode(mode);
         this.container.appendChild(this.stats.domElement);
     }
 
@@ -66,6 +72,7 @@ export default class canvas {
 
         this.scene.add(group);
         this.planets.push(planet);
+        this.planetMeshes.push(planet.sphere, planet.disk);
     }
 
     drawPlanets(planets) {
@@ -103,9 +110,7 @@ export default class canvas {
     raycast() {
         this.raycaster.setFromCamera(this.mouse, this.camera);
 
-        let intersects = this.raycaster.intersectObjects(this.planets
-            .map(p => [p.sphere, p.disk])
-            .reduce((a, b) => a.concat(b), []));
+        let intersects = this.raycaster.intersectObjects(this.planetMeshes);
 
         return intersects;
     }
