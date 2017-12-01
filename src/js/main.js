@@ -1,11 +1,11 @@
-import Canvas from './canvas'
-import Planet from './planet'
-import * as Util from './util'
+import Canvas from './canvas';
+import Planet from './planet';
+import Orbit from './orbit';
+import * as Util from './util';
 
 
-let rr = () => {
-    return Math.random() * Math.PI * 2;
-};
+let rr = () => (Math.random() * 360);
+
 let canvas = new Canvas();
 let earth = new Planet(6300, 150000000, 0, rr(), {
     color: 0x0077ff
@@ -35,6 +35,8 @@ canvas.camera.position.copy(earth.position);
 canvas.camera.position.z -= (earth.radius * 3);
 canvas.controls.target.copy(earth.position);
 // console.log(canvas.camera.position)
+earth.orbit = new Orbit(0, 1.00000261, .00000562, .01671123, .00004392, .00001531, .01294668, 100.46457166, 35999.37244981, 102.93768193, 0.32327364, 0.0, 0.0);
+canvas.scene.add(earth.orbit.draw());
 
 
 canvas.drawPlanets([earth, sun, moon, venus, mars, saturn, jupiter]);
@@ -51,9 +53,9 @@ moon.diskDistance = 120;
 jupiter.diskDistance = 80;
 saturn.diskDistance = 80;
 
-let testPlanets = Array.apply(null, new Array(200))
-    .map(() => new Planet(Math.random() * 20000 + 1000, Math.random() * 10000000000 + 10000000, 0, Math.random() * Math.PI * 2));
-testPlanets.map(p => canvas.drawPlanet(p));
+// let testPlanets = Array.apply(null, new Array(200))
+//     .map(() => new Planet(Math.random() * 20000 + 1000, Math.random() * 10000000000 + 10000000, 0, rr()));
+// testPlanets.map(p => canvas.drawPlanet(p));
 
 
 (function loop() {
