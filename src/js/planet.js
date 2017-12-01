@@ -1,6 +1,8 @@
 import * as THREE from 'three';
-import orbit from './orbit';
-import png_disk from '../assets/disk.png';
+import Orbit from './orbit';
+import png_disk32 from '../assets/disk32.png'
+import png_disk128 from '../assets/disk128.png'
+
 // import {Mesh} from 'three';
 
 
@@ -23,6 +25,7 @@ export default class Planet {
         this.selected = false;
         this.diskDistance = 100;
         this.color = this.materialProperties.color;
+        this.textureLoader = new THREE.TextureLoader();
 
         this.initSpherical(posRadius, posPhi, posTheta);
     }
@@ -83,14 +86,12 @@ export default class Planet {
 
     }
     updateDisk(camera) {
+        const distance = this.sphere.position.distanceTo(camera.position);
+        const dr = distance / this.radius;
+
+        this.disk.visible = dr >= this.diskDistance;
         if (this.disk.visible) {
-
-            const distance = this.sphere.position.distanceTo(camera.position);
-            const dr = distance / this.radius;
-
-            this.disk.visible = dr >= this.diskDistance;
             this.disk.scale.setScalar(dr / this.diskDistance);
-
 
             this.disk.lookAt(camera.position);
         }
@@ -103,8 +104,6 @@ export default class Planet {
 
         if (this.disk.visible) {
             this.disk.scale.setScalar(this.radius * 2 * (dr / this.diskDistance));
-
-            // this.disk.lookAt(camera.position);
         }
     }
 
@@ -157,7 +156,7 @@ export default class Planet {
     }
 
     drawDisk2() {
-        let spriteMap = new THREE.TextureLoader().load(png_disk);
+        let spriteMap = this.textureLoader.load(png_disk32);
         let spriteMaterial = new THREE.SpriteMaterial({
             map: spriteMap,
             color: this.color

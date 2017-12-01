@@ -1,5 +1,6 @@
 import Canvas from './canvas'
 import Planet from './planet'
+import * as Util from './util'
 
 
 let rr = () => {
@@ -29,6 +30,7 @@ let jupiter = new Planet(69911, 778570000, 0, rr(), {
     color: 0xccaa88
 });
 
+
 canvas.camera.position.copy(earth.position);
 canvas.camera.position.z -= (earth.radius * 3);
 canvas.controls.target.copy(earth.position);
@@ -49,7 +51,7 @@ moon.diskDistance = 120;
 jupiter.diskDistance = 80;
 saturn.diskDistance = 80;
 
-let testPlanets = Array.apply(null, new Array(5000))
+let testPlanets = Array.apply(null, new Array(200))
     .map(() => new Planet(Math.random() * 20000 + 1000, Math.random() * 10000000000 + 10000000, 0, Math.random() * Math.PI * 2));
 testPlanets.map(p => canvas.drawPlanet(p));
 
@@ -61,27 +63,4 @@ testPlanets.map(p => canvas.drawPlanet(p));
 })();
 
 
-function onWindowResize() {
-    let width = window.innerWidth,
-        height = window.innerHeight;
-    canvas.camera.aspect = width / height;
-    canvas.camera.updateProjectionMatrix();
-    canvas.renderer.setSize(width, height);
-}
-
-function onMouseMove(event) {
-    // calculate mouse position in normalized device coordinates
-    // (-1 to +1) for both components
-    canvas.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    canvas.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    canvas.updateHighlight(canvas.raycast(), false);
-}
-
-function onDocumentMouseDown(event) {
-    canvas.updateHighlight(canvas.raycast(), true);
-}
-
-window.addEventListener('mousedown', onDocumentMouseDown, false);
-window.addEventListener('resize', onWindowResize, false);
-window.addEventListener('mousemove', onMouseMove, false);
+Util.addEventListeners(canvas);
