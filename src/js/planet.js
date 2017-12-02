@@ -2,6 +2,10 @@ import * as THREE from 'three';
 import Orbit from './orbit';
 import png_disk32 from '../assets/disk32.png'
 import png_disk128 from '../assets/disk128.png'
+import {
+    AU
+} from './util';
+
 
 // import {Mesh} from 'three';
 
@@ -11,12 +15,13 @@ export default class Planet {
         radius = 100, posRadius = 0, posPhi = 0, posTheta = 0, materialProperties = {
             color: 0xffffff,
             dithering: true
-        }, parentPlanet = null, orbit = null) {
+        }, parentPlanet = null, orbit = null, orbitTime = 0) {
 
         this.radius = radius;
         this.parentPlanet = parentPlanet;
         this.orbit = orbit;
-        this.sphere = undefined;
+        this.orbitTime = orbitTime;
+        this.sphere = null;
         this.outline = null;
         this.disk = null;
         this.materialProperties = materialProperties;
@@ -27,7 +32,8 @@ export default class Planet {
         this.color = this.materialProperties.color;
         this.textureLoader = new THREE.TextureLoader();
 
-        this.initSpherical(posRadius, posPhi, posTheta);
+        // this.initSpherical(posRadius, posPhi, posTheta);
+        this.orbit === null ? this.position = new THREE.Vector3(0, 0, 0) : this.initOrbit(orbitTime);
     }
 
     initSpherical(posRadius, posPhi, posTheta) {
@@ -47,6 +53,10 @@ export default class Planet {
             this.relativeSpherical = this.spherical;
         }
         this.position = new THREE.Vector3().setFromSpherical(this.spherical);
+    }
+
+    initOrbit(time) {
+        this.position = this.orbit.calculate(time).multiplyScalar(AU);
     }
 
     update(camera) {
@@ -84,7 +94,13 @@ export default class Planet {
 
         }
         this.outline.visible = this.highlighted || this.selected;
-        // this.selected ? this.outline.material.color = new THREE.Color(0x44ff44) : this.outline.material.color = new THREE.Color(0xffffff);
+        if (this.orbitMesh !== undefined) {
+            if (this.outline.visible) {
+                this.orbitMesh.material.color = new THREE.Color(0xffffff);
+            } else {
+                this.orbitMesh.material.color = new THREE.Color(0x444444);
+            };
+        }
 
     }
     updateDisk(camera) {
@@ -116,6 +132,8 @@ export default class Planet {
     }
 
     draw() {
+        let group = new THREE.Group();
+
         this.sphere = this.drawSphere();
 
         this.outline = this.drawOutlineCircle();
@@ -127,10 +145,12 @@ export default class Planet {
 
         this.disk = this.drawDisk2();
 
-        let group = new THREE.Group();
-        group.add(this.sphere);
-        group.add(this.outline);
-        group.add(this.disk);
+        group.add(this.sphere, this.disk, this.outline);
+
+        if (this.orbit !== null) {
+            this.orbitMesh = this.orbit.draw(this.orbitTime);
+            group.add(this.orbitMesh)
+        }
 
         return group;
     }
@@ -161,7 +181,8 @@ export default class Planet {
         let spriteMap = this.textureLoader.load(png_disk32);
         let spriteMaterial = new THREE.SpriteMaterial({
             map: spriteMap,
-            color: this.color
+            color: this.color,
+            depthTest: false
         });
         let sprite = new THREE.Sprite(spriteMaterial);
         sprite.scale.setScalar(this.radius * 2);
@@ -184,7 +205,8 @@ export default class Planet {
         let points = curve.getPoints(50);
         let geometry = new THREE.BufferGeometry().setFromPoints(points);
         let material = new THREE.LineBasicMaterial({
-            color: 0xffffff
+            color: 0xffffff,
+            depthTest: false
         });
         let circle = new THREE.Line(geometry, material);
 

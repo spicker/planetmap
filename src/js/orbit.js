@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {AU} from './util';
 
 export default class Orbit {
     constructor(
@@ -12,18 +13,20 @@ export default class Orbit {
             this.longAsc = longAsc, this.longAsc0 = longAsc0;
     }
 
-    draw() {
-        const material = new THREE.LineBasicMaterial();
-        let points = [],
-            d = 2458088;
-        for (var i = d; i <= d + 365; i += 1) {
-            points.push(this.calculate(i).multiplyScalar(149597870.7));
+    draw(t) {
+        const p = this.period(t);
+        const material = new THREE.LineBasicMaterial({
+            color:0xbbbbbb
+        });
+        let points = [];
+        for (var i = t; i <= t + p; i += p / 360) {
+            points.push(this.calculate(i).multiplyScalar(AU));
         }
-        console.log(points);
+        points.push(this.calculate(t).multiplyScalar(AU));
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         const orbit = new THREE.Line(geometry, material);
 
-        // orbit.position.set(0, 0, 0);
+        orbit.position.copy(this.center);
 
         return orbit;
     }
@@ -32,10 +35,15 @@ export default class Orbit {
         return (t - 2451545) / 36525;
     }
 
+    period(t) {
+        const a = this.semiMajor0 + this.semiMajor * this.orbitTime(t);
+        return Math.sqrt(Math.pow(a, 3)) * 365.25;
+    }
+
     calculate(t) {
         const tol = 0.000001;
 
-        const T = (t - 2451545) / 36525,
+        const T = this.orbitTime(t),
             e = this.eccentricity0 + this.eccentricity * T,
             a = this.semiMajor0 + this.semiMajor * T,
             I = this.inclination0 + this.inclination * T,
@@ -47,27 +55,27 @@ export default class Orbit {
         let M = L - w;
         M = M % 360 - 180;
 
-        const Ezero = M + estar * Math.sin(THREE.Math.degToRad(M));
+        const Ezero = M + estar * Math.sin(THREE.Math.DEG2RAD * M);
 
         let E = Ezero,
             n = 0,
             deltaM = 0,
             deltaE = 0;
         do {
-            deltaM = M - (E - estar * Math.sin(THREE.Math.degToRad(E)));
-            deltaE = deltaM / (1 - e * Math.cos(THREE.Math.degToRad(E)));
+            deltaM = M - (E - estar * Math.sin(THREE.Math.DEG2RAD * E));
+            deltaE = deltaM / (1 - e * Math.cos(THREE.Math.DEG2RAD * E));
             E += deltaE;
             n++;
             // console.log(deltaE)
         } while (Math.abs(deltaE) > tol);
 
-        M = E - estar * Math.sin(THREE.Math.degToRad(E));
-        const xs = a * (Math.cos(THREE.Math.degToRad(E)) - e),
-            ys = a * Math.sqrt(1 - e * e) * Math.sin(THREE.Math.degToRad(E)),
+        M = E - estar * Math.sin(THREE.Math.DEG2RAD * E);
+        const xs = a * (Math.cos(THREE.Math.DEG2RAD * E) - e),
+            ys = a * Math.sqrt(1 - e * e) * Math.sin(THREE.Math.DEG2RAD * E),
             zs = 0;
-        const argPes = THREE.Math.degToRad(argPe),
-            Os = THREE.Math.degToRad(O),
-            Is = THREE.Math.degToRad(I);
+        const argPes = THREE.Math.DEG2RAD * argPe,
+            Os = THREE.Math.DEG2RAD * O,
+            Is = THREE.Math.DEG2RAD * I;
         const cap = Math.cos(argPes),
             cO = Math.cos(Os),
             cI = Math.cos(Is),

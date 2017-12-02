@@ -29,6 +29,9 @@ function onDocumentMouseDown(event) {
     canvas.updateHighlight(canvas.raycast(), true);
 }
 
+const AU = 149597870.7
+
 export {
-    addEventListeners
+    addEventListeners,
+    AU
 };
