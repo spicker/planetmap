@@ -16,7 +16,7 @@ export default class Orbit {
         const material = new THREE.LineBasicMaterial();
         let points = [],
             d = 2458088;
-        for (var i = d; i <= d + 364; i+=1) {
+        for (var i = d; i <= d + 365; i += 1) {
             points.push(this.calculate(i).multiplyScalar(149597870.7));
         }
         console.log(points);
@@ -35,7 +35,7 @@ export default class Orbit {
     calculate(t) {
         const tol = 0.000001;
 
-        const T = (t - 2451545) / 365.25,
+        const T = (t - 2451545) / 36525,
             e = this.eccentricity0 + this.eccentricity * T,
             a = this.semiMajor0 + this.semiMajor * T,
             I = this.inclination0 + this.inclination * T,
@@ -43,37 +43,47 @@ export default class Orbit {
             w = this.longPe0 + this.longPe * T,
             O = this.longAsc0 + this.longAsc * T,
             argPe = w - O,
-            estar = 180 / Math.PI * e;
+            estar = THREE.Math.radToDeg(e);
         let M = L - w;
+        M = M % 360 - 180;
 
-        const Ezero = M + estar * Math.sin(M);
+        const Ezero = M + estar * Math.sin(THREE.Math.degToRad(M));
 
         let E = Ezero,
             n = 0,
             deltaM = 0,
             deltaE = 0;
         do {
-            deltaM = M - (E - estar * Math.sin(E));
-            deltaE = deltaM / (1 - e * Math.cos(E));
+            deltaM = M - (E - estar * Math.sin(THREE.Math.degToRad(E)));
+            deltaE = deltaM / (1 - e * Math.cos(THREE.Math.degToRad(E)));
             E += deltaE;
             n++;
             // console.log(deltaE)
         } while (Math.abs(deltaE) > tol);
 
-        M = E - estar * Math.sin(E);
-        const xs = a * (Math.cos(E) - e),
-            ys = a * Math.sqrt(1 - e * e) * Math.sin(E),
+        M = E - estar * Math.sin(THREE.Math.degToRad(E));
+        const xs = a * (Math.cos(THREE.Math.degToRad(E)) - e),
+            ys = a * Math.sqrt(1 - e * e) * Math.sin(THREE.Math.degToRad(E)),
             zs = 0;
+        const argPes = THREE.Math.degToRad(argPe),
+            Os = THREE.Math.degToRad(O),
+            Is = THREE.Math.degToRad(I);
+        const cap = Math.cos(argPes),
+            cO = Math.cos(Os),
+            cI = Math.cos(Is),
+            sap = Math.sin(argPes),
+            sO = Math.sin(Os),
+            sI = Math.sin(Is);
         const re = (new THREE.Vector3(
-                    Math.cos(argPe) * Math.cos(O) - Math.sin(argPe) * Math.sin(O) * Math.cos(I),
-                    Math.sin(argPe) * Math.sin(I),
-                    Math.cos(argPe) * Math.sin(O) + Math.sin(argPe) * Math.cos(O) * Math.cos(I)
+                    cap * cO - sap * sO * cI,
+                    sap * sI,
+                    cap * sO + sap * cO * cI
                 )
                 .multiplyScalar(xs))
             .add(new THREE.Vector3(
-                    (-1 * Math.sin(argPe) * Math.cos(O) - Math.cos(argPe) * Math.sin(O) * Math.cos(I)),
-                    Math.cos(argPe) * Math.sin(I),
-                    (-1 * Math.sin(argPe) * Math.sin(O) + Math.cos(argPe) * Math.cos(O) * Math.cos(I))
+                    (-1 * sap * cO - cap * sO * cI),
+                    cap * sI,
+                    (-1 * sap * sO + cap * cO * cI)
                 )
                 .multiplyScalar(ys));
 
