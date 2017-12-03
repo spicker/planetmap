@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 // import Planet from './planet'
-
-const OrbitControls = require('three-orbit-controls')(THREE);
-const Stats = require('stats-js');
+import Stats from 'stats-js';
+import _oc from 'three-orbit-controls';
+const OrbitControls = _oc(THREE);
 
 
 export default class canvas {

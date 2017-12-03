@@ -1,12 +1,12 @@
 {
   "name": "planetmap",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server --host 0.0.0.0",
-    "build": "webpack"
+    "build": "webpack --display-modules"
   },
   "author": "Christoph Spickermann",
   "license": "ISC",
@@ -16,6 +16,7 @@
     "@babel/core": "^7.0.0-beta.32",
     "@babel/preset-env": "^7.0.0-beta.32",
     "babel-loader": "^8.0.0-beta.0",
+    "compression-webpack-plugin": "^1.0.1",
     "css-loader": "^0.28.7",
     "file-loader": "^1.1.5",
     "html-webpack-plugin": "^2.30.1",
